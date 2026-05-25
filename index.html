@@ -345,6 +345,162 @@
     50%       { opacity: 0.9; }
   }
 
+  /* ── FDE Editorial Section ─────────────────────────────── */
+  .fde-row { align-items: flex-start; overflow: visible; }
+  .fde-panel { flex: 0 0 56%; position: relative; z-index: 2; }
+  .fde-quote {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: clamp(1.25rem,2.6vw,1.65rem); line-height: 1.2;
+    color: var(--teal-lt); border-left: 3px solid var(--teal);
+    padding-left: 16px; margin-bottom: 28px; font-style: normal;
+  }
+  .fde-steps { display: flex; flex-direction: column; }
+  .fde-step {
+    display: flex; align-items: center; gap: 14px;
+    padding: 13px 0; border-bottom: 1px solid rgba(42,157,143,0.1);
+    border-left: 3px solid transparent;
+    margin-left: -40px; padding-left: 40px;
+    cursor: default;
+    transition: border-color 0.18s ease, background 0.18s ease;
+  }
+  .fde-step:last-child { border-bottom: none; }
+  .fde-step:hover, .fde-step.fde-active {
+    border-left-color: var(--teal); background: rgba(42,157,143,0.04);
+  }
+  .fde-step-num {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 1.9rem; color: var(--gold); line-height: 1;
+    flex-shrink: 0; width: 40px; transition: color 0.18s;
+  }
+  .fde-step:hover .fde-step-num,
+  .fde-step.fde-active .fde-step-num { color: var(--gold-lt); }
+  .fde-step-body { flex: 1; min-width: 0; }
+  .fde-step-label {
+    font-family: 'Rajdhani', sans-serif; font-weight: 600;
+    font-size: 1rem; letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .fde-step-tag {
+    font-size: 0.82rem; color: var(--dim); line-height: 1.4;
+    transition: color 0.18s;
+  }
+  .fde-step:hover .fde-step-tag,
+  .fde-step.fde-active .fde-step-tag { color: var(--muted); }
+  .fde-cta-btn {
+    font-size: 0.75rem; padding: 7px 16px;
+    letter-spacing: 1.5px; white-space: nowrap; flex-shrink: 0;
+  }
+
+  /* Reveal Zone — background image visible by default */
+  .fde-reveal-zone {
+    flex: 1; position: relative; align-self: stretch;
+    min-height: 320px; overflow: visible; z-index: 3;
+  }
+  .fde-reveal {
+    position: absolute; inset: 0;
+    display: flex; align-items: center;
+    opacity: 0; pointer-events: none;
+    transform: translateX(-12px);
+    transition: opacity 220ms ease, transform 220ms ease;
+  }
+  .fde-reveal.fde-reveal-active {
+    opacity: 1; pointer-events: auto; transform: translateX(0);
+  }
+  .fde-reveal-inner {
+    background: rgba(14,16,18,0.74);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    border-left: 2px solid var(--teal);
+    padding: 28px 28px 28px 24px;
+    margin-left: -20px; /* bleeds into panel's right edge */
+    width: 100%; position: relative;
+  }
+  .fde-reveal-label {
+    font-family: 'Courier Prime', monospace; font-size: 0.68rem;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--teal-lt); margin-bottom: 10px;
+  }
+  .fde-reveal-title {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: clamp(1.15rem,2.2vw,1.45rem);
+    color: var(--text); margin-bottom: 10px; line-height: 1.15;
+  }
+  .fde-reveal-body {
+    font-size: 0.9rem; color: var(--muted); line-height: 1.65;
+  }
+
+  /* ── System Section Hover Reveals ───────────────────────── */
+  .panel-row.sys-row { justify-content: flex-start; align-items: flex-start; overflow: visible; }
+  .sys-panel { flex: 0 0 56%; position: relative; z-index: 2; }
+  .sys-reveal-zone {
+    flex: 1; position: relative; align-self: stretch;
+    min-height: 280px; overflow: visible; z-index: 3;
+    pointer-events: none;
+  }
+  .sys-reveal {
+    position: absolute; inset: 0;
+    display: flex; align-items: center;
+    opacity: 0; pointer-events: none;
+    transform: translateX(12px);
+    transition: opacity 200ms ease, transform 200ms ease;
+  }
+  .sys-reveal.sys-reveal-active {
+    opacity: 1; pointer-events: auto; transform: translateX(0);
+  }
+  .sys-reveal-zone:has(.sys-reveal-active) { pointer-events: auto; }
+
+  /* Hoverable tile */
+  .sys-tile { cursor: pointer; transition: border-color 0.15s ease, background 0.15s ease; }
+  .sys-tile:hover { border-color: rgba(42,157,143,0.45) !important; background: rgba(42,157,143,0.07) !important; }
+  .sys-tile:hover .agent-func { color: var(--text); }
+  .sys-tile:hover .agent-name { color: var(--teal-lt); }
+
+  /* Mini agent card */
+  .amc { /* agent-mini-card */
+    width: 100%; margin-right: -20px; overflow: hidden;
+    background: rgba(14,16,18,0.86);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .amc-bar { height: 3px; width: 100%; }
+  .amc-head {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px 7px;
+  }
+  .amc-tag {
+    font-family: 'Courier Prime', monospace; font-size: 0.62rem;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+  .amc-status {
+    font-family: 'Courier Prime', monospace; font-size: 0.62rem;
+    letter-spacing: 1px; text-transform: uppercase;
+    color: var(--dim); display: flex; align-items: center; gap: 5px;
+  }
+  .amc-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .amc-body { padding: 0 16px 16px; }
+  .amc-title {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: clamp(1rem,1.9vw,1.2rem); line-height: 1.15;
+    color: var(--text); margin-bottom: 2px;
+  }
+  .amc-name {
+    font-family: 'Courier Prime', monospace; font-size: 0.7rem;
+    color: var(--dim); margin-bottom: 10px; letter-spacing: 0.5px;
+  }
+  .amc hr { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 0 0 10px; }
+  .amc-purpose { font-size: 0.84rem; color: var(--muted); line-height: 1.55; margin-bottom: 10px; }
+  .amc-caps { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+  .amc-caps li {
+    font-size: 0.78rem; color: var(--muted);
+    padding-left: 13px; position: relative; line-height: 1.35;
+  }
+  .amc-caps li::before {
+    content: '▸'; position: absolute; left: 0; font-size: 0.68rem;
+  }
+  .amc.teal .amc-caps li::before { color: var(--teal); }
+  .amc.gold  .amc-caps li::before { color: var(--gold); }
+  .amc.rust  .amc-caps li::before { color: #c0392b; }
+  .amc.slate .amc-caps li::before { color: var(--dim); }
+
   @media (max-width: 768px) {
     .header-inner { padding: 14px 20px; }
     .nav-links { gap: 16px; }
@@ -478,32 +634,313 @@
     </div>
   </div>
 
-  <div class="panel-row left reveal">
-    <div class="panel">
+  <!-- FDE Process — Editorial Card + Reveal -->
+  <div class="panel-row fde-row left reveal">
+    <!-- Editorial Card -->
+    <div class="panel fde-panel">
+      <div class="panel-label">The FDE Process</div>
+      <blockquote class="fde-quote">"You have a problem,<br>we send an FDE."</blockquote>
+      <div class="fde-steps">
+        <div class="fde-step" data-step="1">
+          <span class="fde-step-num">01</span>
+          <div class="fde-step-body">
+            <div class="fde-step-label">Contact Us</div>
+            <div class="fde-step-tag">Tell us what you're working on</div>
+          </div>
+          <a href="./contact.html" class="btn-primary fde-cta-btn">Contact &rarr;</a>
+        </div>
+        <div class="fde-step" data-step="2">
+          <span class="fde-step-num">02</span>
+          <div class="fde-step-body">
+            <div class="fde-step-label">Intake</div>
+            <div class="fde-step-tag">We take in the shape of the challenge</div>
+          </div>
+        </div>
+        <div class="fde-step" data-step="3">
+          <span class="fde-step-num">03</span>
+          <div class="fde-step-body">
+            <div class="fde-step-label">Evaluate</div>
+            <div class="fde-step-tag">On the floor, not in a conference room</div>
+          </div>
+        </div>
+        <div class="fde-step" data-step="4">
+          <span class="fde-step-num">04</span>
+          <div class="fde-step-body">
+            <div class="fde-step-label">Design &amp; Deploy</div>
+            <div class="fde-step-tag">Built to fit your work center</div>
+          </div>
+        </div>
+        <div class="fde-step" data-step="5">
+          <span class="fde-step-num">05</span>
+          <div class="fde-step-body">
+            <div class="fde-step-label">Consult Through</div>
+            <div class="fde-step-tag">We stay until your people run it</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Reveal Zone — bg visible until hover -->
+    <div class="fde-reveal-zone">
+      <div class="fde-reveal" data-step="1">
+        <div class="fde-reveal-inner">
+          <div class="fde-reveal-label">01 / Contact</div>
+          <h3 class="fde-reveal-title">Start the conversation.</h3>
+          <p class="fde-reveal-body">No formal request needed — just tell us what you're dealing with. We'll figure out together whether it's something we can help with.</p>
+        </div>
+      </div>
+      <div class="fde-reveal" data-step="2">
+        <div class="fde-reveal-inner">
+          <div class="fde-reveal-label">02 / Intake</div>
+          <h3 class="fde-reveal-title">We take in the shape of the challenge.</h3>
+          <p class="fde-reveal-body">The work center. The people. The constraints. The documentation culture. What's actually on the floor — not what the org chart says should be.</p>
+        </div>
+      </div>
+      <div class="fde-reveal" data-step="3">
+        <div class="fde-reveal-inner">
+          <div class="fde-reveal-label">03 / Evaluate</div>
+          <h3 class="fde-reveal-title">We assess in place.</h3>
+          <p class="fde-reveal-body">Not from a conference room. Not from a needs assessment. We're on the floor with your people, watching how work actually moves.</p>
+        </div>
+      </div>
+      <div class="fde-reveal" data-step="4">
+        <div class="fde-reveal-inner">
+          <div class="fde-reveal-label">04 / Design &amp; Deploy</div>
+          <h3 class="fde-reveal-title">Built to fit. Not to impress.</h3>
+          <p class="fde-reveal-body">Custom AI workflows scoped to your work center, your infrastructure, your authorization constraints. No demo-ware. No conference-room solutions.</p>
+        </div>
+      </div>
+      <div class="fde-reveal" data-step="5">
+        <div class="fde-reveal-inner">
+          <div class="fde-reveal-label">05 / Consult Through</div>
+          <h3 class="fde-reveal-title">We don't hand off. We stay.</h3>
+          <p class="fde-reveal-body">Your people run it. We don't leave until they do. When results surface on the floor, leadership finds out. That's the signal. That's how adoption spreads.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-row sys-row right reveal">
+
+    <!-- Left: reveal zone (bg visible until hover) -->
+    <div class="sys-reveal-zone">
+
+      <div class="sys-reveal" data-agent="bert">
+        <div class="amc teal">
+          <div class="amc-bar" style="background:var(--teal)"></div>
+          <div class="amc-head">
+            <span class="amc-tag" style="color:var(--teal-lt)">UC1 · Parsing</span>
+            <span class="amc-status"><span class="amc-dot" style="background:var(--teal)"></span>Operational</span>
+          </div>
+          <div class="amc-body">
+            <div class="amc-title">Document Parser &amp; Indexer</div>
+            <div class="amc-name">[Bert] · v1.1</div>
+            <hr>
+            <p class="amc-purpose">Ingests SOPs, IPIs, and work instructions. Builds a machine-readable knowledge library with provenance tracking and a SPOF register.</p>
+            <ul class="amc-caps">
+              <li>Dual input modes — institutional docs and operator-fed extracts</li>
+              <li>Hard output gate — never infers content not present in source material</li>
+              <li>Compression hook at 60% context — auto-dumps entries, continues without pause</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sys-reveal" data-agent="faye">
+        <div class="amc teal">
+          <div class="amc-bar" style="background:var(--teal)"></div>
+          <div class="amc-head">
+            <span class="amc-tag" style="color:var(--teal-lt)">UC1 · Interview</span>
+            <span class="amc-status"><span class="amc-dot" style="background:var(--teal)"></span>Operational</span>
+          </div>
+          <div class="amc-body">
+            <div class="amc-title">Knowledge Preservation Interviewer</div>
+            <div class="amc-name">[Faye] · v1.2</div>
+            <hr>
+            <p class="amc-purpose">Trust-centered, structured interviews with subject matter experts to capture institutional knowledge before retirement or reassignment.</p>
+            <ul class="amc-caps">
+              <li>Six risk categories: SPOF, Knowledge Gap, Tribal Knowledge, Undocumented Process, Procedural Delta, Retirement Risk</li>
+              <li>Paul integration — mid-session library cross-reference without interrupting the interview</li>
+              <li>Outbrief is facilitator-only — interviewee receives professional close only</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sys-reveal" data-agent="joan">
+        <div class="amc teal">
+          <div class="amc-bar" style="background:var(--teal)"></div>
+          <div class="amc-head">
+            <span class="amc-tag" style="color:var(--teal-lt)">UC1 · Audit</span>
+            <span class="amc-status"><span class="amc-dot" style="background:var(--teal)"></span>Operational</span>
+          </div>
+          <div class="amc-body">
+            <div class="amc-title">Knowledge Base Auditor</div>
+            <div class="amc-name">[Joan] · v1.2</div>
+            <hr>
+            <p class="amc-purpose">Reviews and prunes the cumulative library — detecting drift, flagging gaps, blocking distribution until HIGH-severity issues resolve.</p>
+            <ul class="amc-caps">
+              <li>Drift detection — flags PROCEDURAL DELTA between institutional and interview-derived entries</li>
+              <li>Blocks FULLREPORT on unresolved HIGH flags (SPOF, pending corroboration)</li>
+              <li>CORROBORATE command verifies entries against source documents</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sys-reveal" data-agent="theseus">
+        <div class="amc gold">
+          <div class="amc-bar" style="background:var(--gold)"></div>
+          <div class="amc-head">
+            <span class="amc-tag" style="color:var(--gold-lt)">UC2 · QA</span>
+            <span class="amc-status"><span class="amc-dot" style="background:var(--gold)"></span>Operational</span>
+          </div>
+          <div class="amc-body">
+            <div class="amc-title">QA Incident Reconstruction Agent</div>
+            <div class="amc-name">[Theseus] · v1.0</div>
+            <hr>
+            <p class="amc-purpose">Reconstructs QA incidents through structured Team Learning Sessions — deploys immediately after an incident, before the investigation team assembles.</p>
+            <ul class="amc-caps">
+              <li>6W framework: What, Who, When, Where, Why, How</li>
+              <li>4-layer HTML Investigator's Package: Executive Dashboard, Interactive Timeline, Divergence Report, Full Transcripts</li>
+              <li>Captures first accounts while memory is fresh — informs, does not replace, formal QA</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sys-reveal" data-agent="clew">
+        <div class="amc gold">
+          <div class="amc-bar" style="background:var(--gold)"></div>
+          <div class="amc-head">
+            <span class="amc-tag" style="color:var(--gold-lt)">Synthesis</span>
+            <span class="amc-status"><span class="amc-dot" style="background:var(--gold)"></span>Operational</span>
+          </div>
+          <div class="amc-body">
+            <div class="amc-title">Aggregation &amp; Synthesis Agent</div>
+            <div class="amc-name">[Clew]</div>
+            <hr>
+            <p class="amc-purpose">Synthesizes outputs across the full agent pipeline into consolidated intelligence products — from interview capture through library audit.</p>
+            <ul class="amc-caps">
+              <li>Cross-session synthesis of Bert, Faye, and Joan outputs</li>
+              <li>Identifies patterns and gaps spanning the full knowledge library</li>
+              <li>Named for the etymological root of "clue" — finding signal in accumulated record</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sys-reveal" data-agent="aletheia">
+        <div class="amc gold">
+          <div class="amc-bar" style="background:var(--gold)"></div>
+          <div class="amc-head">
+            <span class="amc-tag" style="color:var(--gold-lt)">Workforce · Q&amp;A</span>
+            <span class="amc-status"><span class="amc-dot" style="background:var(--gold)"></span>Operational</span>
+          </div>
+          <div class="amc-body">
+            <div class="amc-title">Organizational Q&amp;A Agent</div>
+            <div class="amc-name">[Aletheia]</div>
+            <hr>
+            <p class="amc-purpose">Human-facing interface for workforce Q&amp;A against the completed knowledge library — making preserved institutional knowledge queryable on demand.</p>
+            <ul class="amc-caps">
+              <li>Natural language Q&amp;A against the audited knowledge library</li>
+              <li>Retrieves and surfaces relevant entries for workforce queries</li>
+              <li>Named for the Greek word for "truth" — the endpoint of the preservation mission</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sys-reveal" data-agent="lane">
+        <div class="amc rust">
+          <div class="amc-bar" style="background:#c0392b"></div>
+          <div class="amc-head">
+            <span class="amc-tag" style="color:#e74c3c">CUI · Sub-Agent</span>
+            <span class="amc-status"><span class="amc-dot" style="background:#c0392b"></span>Operational</span>
+          </div>
+          <div class="amc-body">
+            <div class="amc-title">Derivative Classification Officer</div>
+            <div class="amc-name">[Lane]</div>
+            <hr>
+            <p class="amc-purpose">Reviews all agent-generated outputs for CUI compliance before content exits the pipeline for distribution.</p>
+            <ul class="amc-caps">
+              <li>Sub-agent linked to Bert, Faye, and Theseus via Agent Builder</li>
+              <li>Applies derivative classification rules at the pipeline level</li>
+              <li>Flags CUI handling issues before any output reaches distribution</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sys-reveal" data-agent="paul">
+        <div class="amc slate">
+          <div class="amc-bar" style="background:var(--dim)"></div>
+          <div class="amc-head">
+            <span class="amc-tag" style="color:var(--muted)">UC1 · Retrieval</span>
+            <span class="amc-status"><span class="amc-dot" style="background:var(--dim)"></span>Operational</span>
+          </div>
+          <div class="amc-body">
+            <div class="amc-title">Retrieval Sub-Agent</div>
+            <div class="amc-name">[Paul] · v1.0</div>
+            <hr>
+            <p class="amc-purpose">Holds the knowledge library for a work center, surfaces relevant entries into Faye's context at session start and on mid-interview queries.</p>
+            <ul class="amc-caps">
+              <li>Three-level match logic — exact → partial → SEI</li>
+              <li>Serves Faye mid-interview without interrupting the session flow</li>
+              <li>Zero editorializing — returns entries exactly as filed</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="sys-reveal" data-agent="repo">
+        <div class="amc teal">
+          <div class="amc-bar" style="background:var(--teal)"></div>
+          <div class="amc-head">
+            <span class="amc-tag" style="color:var(--teal-lt)">Infrastructure</span>
+            <span class="amc-status"><span class="amc-dot" style="background:var(--teal)"></span>Active</span>
+          </div>
+          <div class="amc-body">
+            <div class="amc-title">The Knowledge Base</div>
+            <div class="amc-name">[Repository]</div>
+            <hr>
+            <p class="amc-purpose">The cumulative, structured record of everything the system has captured, indexed, and audited across all work centers and sessions.</p>
+            <ul class="amc-caps">
+              <li>Schema-locked v1.0 — consistent structure across every entry</li>
+              <li>Grows through Bert parsing and Faye interview output</li>
+              <li>Maintained through Joan's audit cadence — no unreviewed entries reach distribution</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /sys-reveal-zone -->
+
+    <!-- Right: panel -->
+    <div class="panel sys-panel">
       <div class="panel-label">The System</div>
       <h2 class="panel-title">Built tools,<br>not promises.</h2>
-      <p style="font-size:0.88rem; color:var(--muted); line-height:1.65; margin-bottom:16px;">Every agent is operational on authorized infrastructure — built for a specific production-floor use case, not a demo.</p>
+      <p style="font-size:0.88rem; color:var(--muted); line-height:1.65; margin-bottom:16px;">Every agent is operational on authorized infrastructure. Hover any tile for detail.</p>
       <div class="agent-grid">
 
-        <!-- Row 1: Project Recall — Bert → Faye → Joan -->
+        <!-- Row 1: Project Recall -->
         <div class="agent-row-wrap">
           <div class="row-label">Project Recall</div>
           <div class="agent-row">
-            <div class="agent-tile">
+            <div class="agent-tile sys-tile" data-agent="bert">
               <div class="agent-func">Document Foundation</div>
               <div class="agent-name">[Bert]</div>
               <p class="agent-desc">Ingests SOPs, work instructions. Builds a machine-readable knowledge library.</p>
               <span class="agent-status">Operational</span>
             </div>
             <div class="agent-connector">&#8594;</div>
-            <div class="agent-tile">
+            <div class="agent-tile sys-tile" data-agent="faye">
               <div class="agent-func">Knowledge Capture</div>
               <div class="agent-name">[Faye]</div>
               <p class="agent-desc">Captures what experienced people know before they leave.</p>
               <span class="agent-status">Operational</span>
             </div>
             <div class="agent-connector">&#8594;</div>
-            <div class="agent-tile">
+            <div class="agent-tile sys-tile" data-agent="joan">
               <div class="agent-func">Knowledge Auditor</div>
               <div class="agent-name">[Joan]</div>
               <p class="agent-desc">Audits the library. Flags gaps and single points of failure.</p>
@@ -512,25 +949,25 @@
           </div>
         </div>
 
-        <!-- Row 2: Project Theseus — Theseus → Clew → Aletheia -->
+        <!-- Row 2: Project Theseus -->
         <div class="agent-row-wrap">
           <div class="row-label">Project Theseus <span class="challenge-badge">[Code 900 AI Challenge Finalist]</span></div>
           <div class="agent-row">
-            <div class="agent-tile">
+            <div class="agent-tile sys-tile" data-agent="theseus">
               <div class="agent-func">QA Reconstruction</div>
               <div class="agent-name">[Theseus]</div>
               <p class="agent-desc">Reconstructs QA incidents before the investigation team assembles.</p>
               <span class="agent-status">Operational</span>
             </div>
             <div class="agent-connector">&#8594;</div>
-            <div class="agent-tile">
+            <div class="agent-tile sys-tile" data-agent="clew">
               <div class="agent-func">Aggregation</div>
               <div class="agent-name">[Clew]</div>
               <p class="agent-desc">Synthesizes outputs across the system into consolidated intelligence.</p>
               <span class="agent-status">Operational</span>
             </div>
             <div class="agent-connector">&#8594;</div>
-            <div class="agent-tile">
+            <div class="agent-tile sys-tile" data-agent="aletheia">
               <div class="agent-func">Org Q&amp;A</div>
               <div class="agent-name">[Aletheia]</div>
               <p class="agent-desc">Answers questions against the full organizational knowledge base.</p>
@@ -539,25 +976,25 @@
           </div>
         </div>
 
-        <!-- Row 3: Support layer — Lane | Paul | Knowledge Base -->
+        <!-- Row 3: Support Layer -->
         <div class="agent-row-wrap">
           <div class="row-label">Support Layer</div>
           <div class="agent-row">
-            <div class="agent-tile">
+            <div class="agent-tile sys-tile" data-agent="lane">
               <div class="agent-func">Classification Gate</div>
               <div class="agent-name">[Lane]</div>
               <p class="agent-desc">Derivative classification review. Active on Bert, Faye, Theseus, Clew, and Aletheia.</p>
               <span class="agent-status">Operational</span>
             </div>
             <div class="agent-divider">|</div>
-            <div class="agent-tile">
+            <div class="agent-tile sys-tile" data-agent="paul">
               <div class="agent-func">Retrieval</div>
               <div class="agent-name">[Paul]</div>
               <p class="agent-desc">Surfaces relevant library entries into Faye's context at session start.</p>
               <span class="agent-status">Operational</span>
             </div>
             <div class="agent-divider">|</div>
-            <div class="agent-tile kb-tile">
+            <div class="agent-tile kb-tile sys-tile" data-agent="repo">
               <div class="agent-func">Knowledge Base</div>
               <div class="agent-name" style="color:var(--teal-lt);">[Repository]</div>
               <p class="agent-desc">The cumulative, structured record of everything the system has captured and indexed.</p>
@@ -567,7 +1004,8 @@
         </div>
 
       </div>
-    </div>
+    </div><!-- /sys-panel -->
+
   </div>
 
   <div class="panel-row center reveal">
@@ -623,6 +1061,39 @@
   document.addEventListener('scroll', updatePan, { passive: true });
   calcOffset();
   updatePan();
+
+  // FDE step hover reveals
+  const fdeSteps   = document.querySelectorAll('.fde-step');
+  const fdeReveals = document.querySelectorAll('.fde-reveal');
+  fdeSteps.forEach(step => {
+    step.addEventListener('mouseenter', () => {
+      const n = step.dataset.step;
+      fdeSteps.forEach(s => s.classList.remove('fde-active'));
+      fdeReveals.forEach(r => r.classList.remove('fde-reveal-active'));
+      step.classList.add('fde-active');
+      const target = document.querySelector(`.fde-reveal[data-step="${n}"]`);
+      if (target) target.classList.add('fde-reveal-active');
+    });
+    step.addEventListener('mouseleave', () => {
+      step.classList.remove('fde-active');
+      fdeReveals.forEach(r => r.classList.remove('fde-reveal-active'));
+    });
+  });
+
+  // System tile hover reveals
+  const sysTiles   = document.querySelectorAll('.sys-tile');
+  const sysReveals = document.querySelectorAll('.sys-reveal');
+  sysTiles.forEach(tile => {
+    tile.addEventListener('mouseenter', () => {
+      const agent = tile.dataset.agent;
+      sysReveals.forEach(r => r.classList.remove('sys-reveal-active'));
+      const target = document.querySelector(`.sys-reveal[data-agent="${agent}"]`);
+      if (target) target.classList.add('sys-reveal-active');
+    });
+    tile.addEventListener('mouseleave', () => {
+      sysReveals.forEach(r => r.classList.remove('sys-reveal-active'));
+    });
+  });
 
   // scroll reveal
   const reveals = document.querySelectorAll('.reveal');
