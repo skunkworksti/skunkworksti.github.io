@@ -98,19 +98,22 @@
     }
 
     /* ── Character cards ─────────────────────────────────── */
-    .cards-container { display: flex; gap: 32px; justify-content: center; flex-wrap: wrap; }
+    .cards-row { display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; margin-bottom: 28px; }
+    .cards-row:last-child { margin-bottom: 0; }
     .asset-card {
       background: rgba(14,16,18,0.95);
       border: 1px solid rgba(42,157,143,0.3);
-      padding: 32px 28px; width: 260px; flex-shrink: 0;
+      padding: 32px 28px; width: 240px; flex-shrink: 0;
     }
     .asset-card.gold-accent { border-color: rgba(201,168,76,0.4); }
+    .asset-card.shadow-node { border-color: rgba(255,255,255,0.06); background: rgba(14,16,18,0.6); }
     .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
     .card-callsign {
       font-family: 'Courier Prime', monospace; font-size: 0.7rem;
       letter-spacing: 2px; text-transform: uppercase; color: var(--teal-lt);
     }
     .asset-card.gold-accent .card-callsign { color: var(--gold); }
+    .asset-card.shadow-node .card-callsign { color: var(--dim); opacity: 0.6; }
     .card-label {
       font-family: 'Courier Prime', monospace; font-size: 0.65rem;
       letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim);
@@ -126,6 +129,11 @@
       font-family: 'Courier Prime', monospace; font-size: 0.65rem;
       letter-spacing: 1px; color: var(--dim); text-align: center; opacity: 0.5;
     }
+    .shadow-lock {
+      font-family: 'Courier Prime', monospace; font-size: 0.65rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--dim); text-align: center; opacity: 0.45; line-height: 2;
+    }
     .card-asset-no {
       font-family: 'Courier Prime', monospace; font-size: 0.65rem;
       letter-spacing: 2px; color: var(--dim); margin-bottom: 4px;
@@ -136,6 +144,11 @@
       letter-spacing: 1px; color: var(--teal-lt); margin-bottom: 16px;
     }
     .asset-card.gold-accent .card-designation { color: var(--gold); }
+    .asset-card.shadow-node .card-role,
+    .asset-card.shadow-node .card-designation,
+    .asset-card.shadow-node .card-asset-no,
+    .asset-card.shadow-node .card-diagnostic-label,
+    .asset-card.shadow-node .card-diagnostic { color: var(--dim); opacity: 0.45; }
     .card-diagnostic-label {
       font-family: 'Courier Prime', monospace; font-size: 0.65rem;
       letter-spacing: 2px; text-transform: uppercase; color: var(--dim); margin-bottom: 6px;
@@ -173,10 +186,12 @@
     <div class="panels">
 
       <!-- Panel 1 — center, character cards -->
-      <div class="panel center" style="max-width:640px;">
+      <div class="panel center" style="max-width:880px; padding-left:36px; padding-right:36px;">
         <div class="panel-eyebrow">Asset Files</div>
         <h2 style="margin-bottom:28px;">The Unit</h2>
-        <div class="cards-container">
+
+        <!-- Row 1 — Colby / Campbell / Shadow -->
+        <div class="cards-row">
 
           <div class="asset-card">
             <div class="card-header">
@@ -184,8 +199,7 @@
               <span class="card-label">Asset File</span>
             </div>
             <div class="card-portrait">
-              <!-- PORTRAIT PENDING: swap placeholder for img tag when ready -->
-              <div class="card-portrait-placeholder">[PORTRAIT]<br>ASSET NO. 01</div>
+              <img src="./assets/characters/Colby_Card.png" alt="">
             </div>
             <div class="card-asset-no">Asset No. 01</div>
             <div class="card-role">Operational Lead / Architect</div>
@@ -200,8 +214,7 @@
               <span class="card-label">Asset File</span>
             </div>
             <div class="card-portrait">
-              <!-- PORTRAIT PENDING: swap placeholder for img tag when ready -->
-              <div class="card-portrait-placeholder">[PORTRAIT]<br>ASSET NO. 02</div>
+              <img src="./assets/characters/Campbell_Card.png" alt="">
             </div>
             <div class="card-asset-no">Asset No. 02</div>
             <div class="card-role">Field Operator</div>
@@ -210,7 +223,58 @@
             <div class="card-diagnostic">Embedded. Knows the geography. Gets you past what skill alone cannot.</div>
           </div>
 
+          <div class="asset-card shadow-node">
+            <div class="card-header">
+              <span class="card-callsign">[REDACTED]</span>
+              <span class="card-label">Asset File</span>
+            </div>
+            <div class="card-portrait">
+              <div class="shadow-lock">[CLASSIFIED]<br>ASSET NO. ??</div>
+            </div>
+            <div class="card-asset-no">Asset No. ??</div>
+            <div class="card-role">CLASSIFIED</div>
+            <div class="card-designation">??? · ???</div>
+            <div class="card-diagnostic-label">Field Diagnostic:</div>
+            <div class="card-diagnostic">Clearance required.</div>
+          </div>
+
         </div>
+
+        <!-- Row 2 — Shirley / Shadow -->
+        <div class="cards-row">
+
+          <div class="asset-card gold-accent">
+            <div class="card-header">
+              <span class="card-callsign">The Facilitator</span>
+              <span class="card-label">Asset File</span>
+            </div>
+            <div class="card-portrait">
+              <img src="./assets/characters/Shirley_Card.png" alt="">
+            </div>
+            <div class="card-asset-no">Asset No. 03</div>
+            <div class="card-role">Project Champion</div>
+            <div class="card-designation">Command Liaison · Institutional Access</div>
+            <div class="card-diagnostic-label">Field Diagnostic:</div>
+            <div class="card-diagnostic">Opens doors others can't knock on. Shaped the conditions that made this possible.</div>
+          </div>
+
+          <div class="asset-card shadow-node">
+            <div class="card-header">
+              <span class="card-callsign">[REDACTED]</span>
+              <span class="card-label">Asset File</span>
+            </div>
+            <div class="card-portrait">
+              <div class="shadow-lock">[CLASSIFIED]<br>ASSET NO. ??</div>
+            </div>
+            <div class="card-asset-no">Asset No. ??</div>
+            <div class="card-role">CLASSIFIED</div>
+            <div class="card-designation">??? · ???</div>
+            <div class="card-diagnostic-label">Field Diagnostic:</div>
+            <div class="card-diagnostic">Clearance required.</div>
+          </div>
+
+        </div>
+
       </div>
 
       <!-- Panel 2 — left -->
