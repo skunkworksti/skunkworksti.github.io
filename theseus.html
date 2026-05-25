@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[Skunkworks]TI — Project Theseus</title>
+  <meta name="description" content="Project Theseus — QA incident reconstruction before the investigation team assembles. Code 900 AI Challenge Finalist.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Source+Sans+3:wght@400;600&family=Courier+Prime:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #1e2022;
+      --surface: #2b2d2f;
+      --bg-deep: #0e1012;
+      --teal:    #2a9d8f;
+      --teal-lt: #3dbfae;
+      --gold:    #c9a84c;
+      --text:    #ffffff;
+      --muted:   #cbd5e1;
+      --dim:     #8a9096;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-deep); color: var(--text);
+      font-family: 'Source Sans 3', sans-serif; font-weight: 400; min-height: 100vh;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1000; opacity: 0.15;
+    }
+    .page-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+    .page-bg img {
+      position: absolute; top: 0; left: 0;
+      height: 100%; width: auto; min-width: 100%;
+      object-fit: cover; object-position: left center;
+      will-change: transform; transition: transform 0.1s linear;
+    }
+    .page-bg::after { content: ''; position: absolute; inset: 0; background: rgba(14,16,18,0.52); }
+    .page-content { position: relative; z-index: 1; min-height: 100vh; }
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(14,16,18,0.92); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(42,157,143,0.25);
+      padding: 0 40px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-wordmark {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1.1rem; letter-spacing: 1px; text-decoration: none; display: flex;
+    }
+    .nav-wordmark .bracket { color: var(--teal-lt); }
+    .nav-wordmark .skunk   { color: var(--text); }
+    .nav-wordmark .ti      { color: var(--gold); }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-link {
+      font-family: 'Courier Prime', monospace; font-size: 0.78rem;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: rgba(255,255,255,0.65); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--teal-lt); }
+    .panels { display: flex; flex-direction: column; gap: 80px; padding: 80px 40px; }
+    .panel {
+      background: rgba(43,45,47,0.93); border-left: 3px solid var(--gold);
+      padding: 40px 48px; max-width: 560px;
+    }
+    .panel.right  { margin-left: auto; }
+    .panel.center { margin: 0 auto; max-width: 720px; border-left-color: var(--teal); }
+    .panel-eyebrow {
+      font-family: 'Courier Prime', monospace; font-size: 0.72rem;
+      letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px;
+    }
+    .panel.center .panel-eyebrow { color: var(--teal-lt); }
+    .panel h1, .panel h2 {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 2rem; line-height: 1.15; margin-bottom: 16px;
+    }
+    .panel p {
+      font-family: 'Source Sans 3', sans-serif; font-weight: 400;
+      font-size: 1rem; line-height: 1.65; color: var(--muted);
+    }
+    .panel-cta {
+      display: inline-block; margin-top: 24px;
+      font-family: 'Courier Prime', monospace; font-size: 0.8rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--teal-lt); text-decoration: none;
+      border: 1px solid var(--teal); padding: 10px 24px;
+      border-radius: 0; transition: background 0.2s, color 0.2s;
+    }
+    .panel-cta:hover { background: var(--teal); color: var(--bg-deep); }
+
+    /* 6W framework grid */
+    .sixw-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 20px;
+    }
+    .sixw-item {
+      background: rgba(14,16,18,0.6); border: 1px solid rgba(201,168,76,0.15);
+      padding: 12px 14px;
+    }
+    .sixw-letter {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1.4rem; color: var(--gold); line-height: 1; margin-bottom: 2px;
+    }
+    .sixw-label {
+      font-family: 'Courier Prime', monospace; font-size: 0.68rem;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim);
+    }
+
+    /* output layers */
+    .output-stack { display: flex; flex-direction: column; gap: 2px; margin-top: 20px; }
+    .output-layer {
+      display: flex; align-items: center; gap: 14px;
+      background: rgba(14,16,18,0.6); border: 1px solid rgba(201,168,76,0.15);
+      padding: 12px 14px;
+    }
+    .layer-num {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1.2rem; color: var(--gold); flex-shrink: 0; width: 24px;
+    }
+    .layer-name {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.95rem;
+      letter-spacing: 0.5px; margin-bottom: 2px;
+    }
+    .layer-desc {
+      font-family: 'Source Sans 3', sans-serif; font-size: 0.82rem;
+      color: var(--muted); line-height: 1.3;
+    }
+
+    /* stat callout */
+    .stat-callout {
+      border-left: 3px solid var(--gold); padding: 16px 20px; margin-bottom: 24px;
+      background: rgba(201,168,76,0.06);
+    }
+    .stat-number {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 3rem; color: var(--gold); line-height: 1; margin-bottom: 4px;
+    }
+    .stat-label {
+      font-family: 'Source Sans 3', sans-serif; font-size: 0.9rem;
+      color: var(--muted); line-height: 1.5; margin-bottom: 6px;
+    }
+    .stat-caveat {
+      font-family: 'Courier Prime', monospace; font-size: 0.68rem;
+      letter-spacing: 1.5px; text-transform: uppercase; color: var(--dim);
+    }
+
+    /* credential badges */
+    .credential-stack { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+    .credential {
+      display: flex; align-items: flex-start; gap: 14px;
+      padding: 14px 16px;
+      background: rgba(14,16,18,0.5); border-left: 2px solid var(--teal);
+    }
+    .credential-icon {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1.1rem; color: var(--teal-lt); flex-shrink: 0; line-height: 1.2;
+    }
+    .credential-text h4 {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1rem;
+      letter-spacing: 0.5px; margin-bottom: 3px;
+    }
+    .credential-text p {
+      font-size: 0.88rem; color: var(--muted); line-height: 1.5;
+    }
+    .challenge-badge {
+      display: inline-block; margin-left: 8px;
+      font-family: 'Courier Prime', monospace; font-size: 0.65rem;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: #c0392b; border: 1px solid rgba(192,57,43,0.45);
+      padding: 1px 7px; vertical-align: middle;
+    }
+
+    .gradient-rule {
+      height: 3px; border-radius: 0;
+      background: linear-gradient(90deg,#2a9d8f 0%,#3dbfae 40%,#c9a84c 70%,#ddb85e 100%);
+    }
+    footer {
+      background: var(--bg-deep); border-top: 1px solid rgba(42,157,143,0.15);
+      padding: 32px 40px; text-align: center;
+    }
+    .footer-wordmark { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 8px; }
+    .footer-wordmark .bracket { color: var(--teal-lt); }
+    .footer-wordmark .skunk   { color: var(--text); }
+    .footer-wordmark .ti      { color: var(--gold); }
+    .footer-meta { font-family: 'Source Sans 3', sans-serif; font-size: 0.8rem; color: var(--dim); margin-bottom: 12px; }
+    .sector-code {
+      font-family: 'VT323', monospace; font-size: 0.85rem; color: var(--dim);
+      opacity: 0.18; letter-spacing: 1px; text-transform: uppercase; display: block; margin-top: 4px;
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 0 20px; }
+      .panels { padding: 40px 20px; gap: 40px; }
+      .panel, .panel.right, .panel.center { max-width: 92%; margin-left: 0; }
+      .sixw-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-bg">
+    <img id="bg-img" src="./assets/backgrounds/theseus_bg.png" alt="">
+  </div>
+
+  <div class="page-content">
+
+    <nav class="nav">
+      <a href="./index.html" class="nav-wordmark">
+        <span class="bracket">[</span><span class="skunk">Skunkworks</span><span class="bracket">]</span><span class="ti">TI</span>
+      </a>
+      <div class="nav-links">
+        <a href="./index.html"    class="nav-link">Home</a>
+        <a href="./recall.html"   class="nav-link">Project Recall</a>
+        <a href="./theseus.html"  class="nav-link active">Project Theseus</a>
+        <a href="./about.html"    class="nav-link">About</a>
+        <a href="./contact.html"  class="nav-link">Contact</a>
+      </div>
+    </nav>
+
+    <div class="panels">
+
+      <!-- Panel 1 — left: The Problem -->
+      <div class="panel">
+        <div class="panel-eyebrow">Project Theseus</div>
+        <h1>The story changes<br>before the investigation starts.</h1>
+        <p>By the time a formal QA investigation convenes, the timeline has already been revised. Details soften. What actually happened gets replaced by what people think happened — or what they're comfortable reporting.</p>
+        <p style="margin-top:12px;">Theseus deploys before that collapse. Before the investigation team assembles. While the details are still fresh, uncollapsed, and contradictory in the right ways.</p>
+      </div>
+
+      <!-- Panel 2 — right: How It Works -->
+      <div class="panel right">
+        <div class="panel-eyebrow">The Method</div>
+        <h2>Team Learning Session.<br>Six dimensions. One record.</h2>
+        <p>A structured AI-assisted session that captures the incident through the 6W framework — before positions harden and narratives converge.</p>
+        <div class="sixw-grid">
+          <div class="sixw-item">
+            <div class="sixw-letter">W<sub style="font-size:0.6em;">1</sub></div>
+            <div class="sixw-label">What happened</div>
+          </div>
+          <div class="sixw-item">
+            <div class="sixw-letter">W<sub style="font-size:0.6em;">2</sub></div>
+            <div class="sixw-label">Who was involved</div>
+          </div>
+          <div class="sixw-item">
+            <div class="sixw-letter">W<sub style="font-size:0.6em;">3</sub></div>
+            <div class="sixw-label">When it occurred</div>
+          </div>
+          <div class="sixw-item">
+            <div class="sixw-letter">W<sub style="font-size:0.6em;">4</sub></div>
+            <div class="sixw-label">Where it happened</div>
+          </div>
+          <div class="sixw-item">
+            <div class="sixw-letter">W<sub style="font-size:0.6em;">5</sub></div>
+            <div class="sixw-label">Why it occurred</div>
+          </div>
+          <div class="sixw-item">
+            <div class="sixw-letter">H</div>
+            <div class="sixw-label">How it unfolded</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 3 — left: The Output -->
+      <div class="panel">
+        <div class="panel-eyebrow">The Deliverable</div>
+        <h2>The investigation team<br>inherits a record, not a story.</h2>
+        <p>Theseus produces a structured four-layer Investigator's Package — handed directly to the QA team when they convene.</p>
+        <div class="output-stack">
+          <div class="output-layer">
+            <div class="layer-num">01</div>
+            <div>
+              <div class="layer-name">Executive Dashboard</div>
+              <div class="layer-desc">High-level incident summary for leadership and review boards.</div>
+            </div>
+          </div>
+          <div class="output-layer">
+            <div class="layer-num">02</div>
+            <div>
+              <div class="layer-name">Interactive Timeline</div>
+              <div class="layer-desc">Reconstructed sequence of events with source attribution.</div>
+            </div>
+          </div>
+          <div class="output-layer">
+            <div class="layer-num">03</div>
+            <div>
+              <div class="layer-name">Divergence Report</div>
+              <div class="layer-desc">Where accounts conflict. Where the gaps are. What to investigate first.</div>
+            </div>
+          </div>
+          <div class="output-layer">
+            <div class="layer-num">04</div>
+            <div>
+              <div class="layer-name">Full Transcripts</div>
+              <div class="layer-desc">Complete session record — auditable, attributable, preserved.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel 4 — center: Recognition + Campbell + CTA -->
+      <div class="panel center">
+        <div class="panel-eyebrow">Recognition</div>
+        <h2>In the field. Earning ground.</h2>
+        <div class="stat-callout">
+          <div class="stat-number">70%<span style="font-size:2rem; vertical-align:top; line-height:1.6;">+</span></div>
+          <div class="stat-label">Reduction in administrative burden on QA departments — freeing investigators to spend more time on the critical analysis only an expert can provide.</div>
+          <div class="stat-caveat">[ Early reporting — Active pilot ]</div>
+        </div>
+        <div class="credential-stack">
+          <div class="credential">
+            <div class="credential-icon">&#9670;</div>
+            <div class="credential-text">
+              <h4>Code 900 AI Challenge <span class="challenge-badge">[3rd Place Finalist]</span></h4>
+              <p>Competed against AI implementations across the enterprise. Project Theseus placed third — recognized for operational impact and floor-level deployability.</p>
+            </div>
+          </div>
+          <div class="credential">
+            <div class="credential-icon">&#9670;</div>
+            <div class="credential-text">
+              <h4>Official QA Pilot — Adopted</h4>
+              <p>The internal QA department has adopted Project Theseus as an official pilot program. Not a proof of concept. A deployment.</p>
+            </div>
+          </div>
+          <div class="credential">
+            <div class="credential-icon">&#9670;</div>
+            <div class="credential-text">
+              <h4>NNSY Quality Forum</h4>
+              <p>Project Theseus is being presented at the Quality Forum — institutional recognition at the shipyard level.</p>
+            </div>
+          </div>
+        </div>
+        <p style="margin-top:28px; font-family:'Courier Prime',monospace; font-size:0.75rem; letter-spacing:1px; color:var(--dim); line-height:1.8;">
+          PROJECT THESEUS &mdash; USE CASE 2<br>LEAD: CAMPBELL &middot; [THE STRATEGIST]
+        </p>
+        <a href="./contact.html" class="panel-cta" style="margin-top:20px;">Work With Us</a>
+      </div>
+
+    </div>
+
+    <footer>
+      <div class="gradient-rule" style="margin-bottom:24px;"></div>
+      <div class="footer-wordmark">
+        <span class="bracket">[</span><span class="skunk">Skunkworks</span><span class="bracket">]</span><span class="ti">TI</span>
+      </div>
+      <div class="footer-meta">&copy; 2026 &mdash; skunkworks.ti@gmail.com</div>
+      <span class="sector-code">SECTOR 05 | QA COMMAND | ACTIVE</span>
+    </footer>
+
+  </div>
+
+  <script>
+    (function () {
+      var bgImg = document.getElementById('bg-img');
+      if (bgImg) {
+        var MAX_PAN = 0.3;
+        function updatePan() {
+          var scrolled = window.scrollY;
+          var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          var frac = maxScroll > 0 ? scrolled / maxScroll : 0;
+          var maxShift = Math.max(0, (bgImg.naturalWidth || bgImg.offsetWidth) - window.innerWidth) * MAX_PAN;
+          bgImg.style.transform = 'translateX(-' + (frac * maxShift) + 'px)';
+        }
+        window.addEventListener('scroll', updatePan, { passive: true });
+        window.addEventListener('resize', updatePan, { passive: true });
+        bgImg.addEventListener('load', updatePan);
+        updatePan();
+      }
+      var panels = document.querySelectorAll('.panel');
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; }
+        });
+      }, { threshold: 0.1 });
+      panels.forEach(function(p) {
+        p.style.opacity='0'; p.style.transform='translateY(20px)';
+        p.style.transition='opacity 0.5s ease, transform 0.5s ease';
+        observer.observe(p);
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[Skunkworks]TI — Forward-Deployed AI Implementation</title>
+<meta name="description" content="[Skunkworks]TI — Field-deployed AI for institutional knowledge preservation. We start where implementations fail.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Source+Sans+3:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Courier+Prime:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:           #1e2022;
+    --surface:      #2b2d2f;
+    --teal:         #2a9d8f;
+    --teal-lt:      #3dbfae;
+    --gold:         #c9a84c;
+    --gold-lt:      #ddb85e;
+    --text:         #ffffff;
+    --muted:        #cbd5e1;
+    --dim:          #8a9096;
+    --panel-bg:     rgba(22,24,26,0.94);
+    --panel-border: rgba(42,157,143,0.25);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    color: var(--text);
+    font-family: 'Source Sans 3', sans-serif;
+    font-weight: 400;
+    line-height: 1.7;
+    overflow-x: hidden;
+    background: #0e1012;
+  }
+
+  /* noise overlay */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 1000; opacity: 0.18;
+  }
+
+  /* pan background */
+  #pan-bg {
+    position: fixed; inset: 0; z-index: -1; overflow: hidden;
+  }
+  #pan-img {
+    position: absolute; top: 50%; left: 0;
+    transform: translateY(-50%) translateX(0px);
+    height: 130vh; width: auto;
+    will-change: transform; display: block;
+  }
+  #pan-bg::after {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(14,16,18,0.52); z-index: 1;
+  }
+
+  /* header */
+  header {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    background: transparent;
+    border-bottom: 1px solid transparent;
+    transition: background 0.4s ease, backdrop-filter 0.4s ease, border-color 0.4s ease;
+  }
+  header.scrolled {
+    background: rgba(28,30,32,0.90);
+    backdrop-filter: blur(14px);
+    border-bottom: 1px solid rgba(42,157,143,0.15);
+  }
+  .header-inner {
+    max-width: 1000px; margin: 0 auto;
+    padding: 16px 36px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .wordmark {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 1.15rem; letter-spacing: 2px;
+    text-decoration: none; line-height: 1;
+  }
+  .wordmark .bracket { color: #3dbfae; }
+  .wordmark .skunk   { color: #f4f5f4; }
+  .wordmark .ti      { color: #c9a84c; }
+  .nav-links { display: flex; gap: 28px; align-items: center; }
+  .nav-link {
+    font-family: 'Courier Prime', monospace; font-size: 0.78rem;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: rgba(255,255,255,0.65); text-decoration: none; transition: color 0.2s;
+  }
+  .nav-link:hover, .nav-link.active { color: var(--teal-lt); }
+
+  /* hero */
+  .hero-wrapper {
+    position: relative; height: 100vh; min-height: 600px;
+    display: flex; flex-direction: column;
+    justify-content: flex-end; padding-bottom: 80px; z-index: 1;
+  }
+  .wrap {
+    max-width: 1000px; margin: 0 auto;
+    padding: 0 36px; width: 100%; position: relative; z-index: 1;
+  }
+  .hero-eyebrow {
+    font-family: 'Courier Prime', monospace; font-size: 0.7rem;
+    letter-spacing: 3px; text-transform: uppercase;
+    color: var(--teal-lt); margin-bottom: 20px;
+    opacity: 0; animation: fadeUp 0.7s 0.2s ease forwards;
+  }
+  .hero-title {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: clamp(3.2rem, 7.5vw, 5.8rem);
+    line-height: 0.95; letter-spacing: 1px; color: var(--text);
+    text-shadow: 0 2px 40px rgba(0,0,0,0.8);
+    opacity: 0; animation: fadeUp 0.7s 0.35s ease forwards;
+  }
+  .hero-title .accent { color: var(--teal-lt); }
+  .hero-title .gold   { color: var(--gold); }
+  .hero-rule {
+    width: 60px; height: 2px; background: var(--teal); margin: 24px 0;
+    opacity: 0; animation: fadeUp 0.7s 0.5s ease forwards;
+  }
+  .hero-sub {
+    font-size: 1.1rem; font-weight: 300;
+    color: rgba(244,245,244,0.82); max-width: 520px;
+    line-height: 1.7; text-shadow: 0 1px 16px rgba(0,0,0,0.9);
+    opacity: 0; animation: fadeUp 0.7s 0.6s ease forwards;
+  }
+  .hero-sub strong { color: var(--text); font-weight: 400; }
+  .hero-cta {
+    margin-top: 36px; display: flex; align-items: center; gap: 24px;
+    opacity: 0; animation: fadeUp 0.7s 0.75s ease forwards;
+  }
+  .btn-primary {
+    display: inline-block; font-family: 'Rajdhani', sans-serif;
+    font-weight: 700; font-size: 0.85rem; letter-spacing: 2px;
+    text-transform: uppercase; color: #0e1012; background: var(--teal);
+    padding: 14px 32px; text-decoration: none; border: none;
+    cursor: pointer; border-radius: 0; transition: background 0.2s, transform 0.15s;
+  }
+  .btn-primary:hover { background: var(--teal-lt); transform: translateY(-1px); }
+  .scroll-hint {
+    display: flex; align-items: center; gap: 10px;
+    font-family: 'Courier Prime', monospace; font-size: 0.65rem;
+    letter-spacing: 2px; color: rgba(244,245,244,0.35); text-transform: uppercase;
+  }
+  .scroll-line { width: 32px; height: 1px; background: rgba(244,245,244,0.25); }
+  .scroll-chevron {
+    position: absolute; bottom: 28px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    opacity: 0; animation: fadeIn 1s 1.2s ease forwards; z-index: 1;
+  }
+  .chevron-line {
+    width: 1px; height: 36px;
+    background: linear-gradient(to bottom, rgba(42,157,143,0.6), transparent);
+    animation: pulse-line 2s 1.5s ease-in-out infinite;
+  }
+  .chevron-dot {
+    width: 5px; height: 5px; border-radius: 50%; background: var(--teal);
+    animation: drop 2s 1.5s ease-in-out infinite;
+  }
+
+  /* gradient rule */
+  .grad-rule {
+    height: 3px;
+    background: linear-gradient(90deg,#2a9d8f 0%,#3dbfae 40%,#c9a84c 70%,#ddb85e 100%);
+    border: none; opacity: 0.7; position: relative; z-index: 1;
+  }
+
+  /* panels */
+  .page-body { padding: 80px 0 100px; position: relative; z-index: 1; }
+  .panel-row {
+    max-width: 1000px; margin: 0 auto 52px;
+    padding: 0 36px; display: flex;
+  }
+  .panel-row.left   { justify-content: flex-start; }
+  .panel-row.right  { justify-content: flex-end; }
+  .panel-row.center { justify-content: center; }
+
+  .panel {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-top: 3px solid var(--teal);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 40px 40px 44px; width: 56%;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+  .panel:hover { border-color: rgba(42,157,143,0.38); transform: translateY(-2px); }
+  .panel.wide { width: 66%; }
+
+  .panel-label {
+    font-family: 'Courier Prime', monospace; font-size: 0.8rem;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--teal-lt); margin-bottom: 14px;
+  }
+  .panel-title {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: clamp(1.5rem, 3vw, 2.1rem); line-height: 1.1;
+    color: var(--text); margin-bottom: 24px;
+  }
+
+  /* problem stack */
+  .problem-stack { display: flex; flex-direction: column; }
+  .problem-item {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 18px 0; border-bottom: 1px solid rgba(42,157,143,0.12);
+  }
+  .problem-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .problem-num {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 1.4rem; color: var(--teal); line-height: 1;
+    flex-shrink: 0; width: 28px;
+  }
+  .problem-text h4 {
+    font-family: 'Rajdhani', sans-serif; font-size: 1.05rem;
+    font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .problem-text p { font-size: 0.95rem; color: var(--muted); line-height: 1.6; }
+
+  /* flow diagram */
+  .flow-diagram { display: flex; flex-direction: column; gap: 0; }
+  .flow-step {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 14px 0; border-left: 2px solid rgba(42,157,143,0.2);
+    padding-left: 20px; position: relative;
+  }
+  .flow-step.active { border-left-color: var(--teal); }
+  .flow-node {
+    width: 28px; height: 28px; border-radius: 50%;
+    border: 2px solid var(--teal); color: var(--teal);
+    font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 0.75rem;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; background: #0e1012;
+    position: absolute; left: -15px; top: 14px;
+  }
+  .flow-step.active .flow-node { background: var(--teal); color: #0e1012; }
+  .flow-label {
+    font-family: 'Rajdhani', sans-serif; font-weight: 600;
+    font-size: 1rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .flow-desc { font-size: 0.92rem; color: var(--muted); line-height: 1.5; }
+
+  /* agent grid — 3 rows */
+  .agent-grid { display: flex; flex-direction: column; gap: 12px; margin-top: 22px; }
+  .agent-row-wrap { display: flex; flex-direction: column; gap: 4px; }
+  .row-label {
+    font-family: 'Courier Prime', monospace; font-size: 0.65rem;
+    letter-spacing: 2px; text-transform: uppercase; color: var(--dim);
+    padding-left: 2px;
+  }
+  .agent-row { display: flex; align-items: stretch; gap: 0; }
+  .agent-tile {
+    background: rgba(14,16,18,0.7); border: 1px solid rgba(42,157,143,0.15);
+    padding: 12px 12px 14px; flex: 1;
+  }
+  .agent-tile.dim-tile { border-color: rgba(138,144,150,0.15); }
+  .agent-func {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.95rem; letter-spacing: 0.5px; margin-bottom: 2px; line-height: 1.2;
+  }
+  .agent-name {
+    font-family: 'Courier Prime', monospace; font-size: 0.68rem;
+    font-weight: 400; letter-spacing: 1px; text-transform: uppercase;
+    color: var(--teal-lt); margin-bottom: 8px;
+  }
+  .agent-tile.dim-tile .agent-name { color: var(--dim); }
+  .agent-desc { font-size: 0.82rem; color: var(--muted); line-height: 1.4; }
+  .agent-tile.dim-tile .agent-desc { color: var(--dim); }
+  .agent-status {
+    display: inline-block; margin-top: 8px;
+    font-family: 'Courier Prime', monospace; font-size: 0.65rem;
+    font-weight: 400; letter-spacing: 1px; text-transform: uppercase;
+    color: #0e1012; background: var(--teal); padding: 2px 7px; border-radius: 0;
+  }
+  .agent-status.named { background: transparent; color: var(--dim); border: 1px solid rgba(138,144,150,0.3); }
+  .agent-status.dev   { background: transparent; color: var(--gold); border: 1px solid rgba(201,168,76,0.35); }
+  .challenge-badge {
+    display: inline-block; margin-left: 10px;
+    font-family: 'Courier Prime', monospace; font-size: 0.68rem;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: #c0392b; border: 1px solid rgba(192,57,43,0.45);
+    padding: 2px 8px; vertical-align: middle;
+  }
+  .agent-connector {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px; color: var(--teal); font-size: 0.75rem;
+    opacity: 0.6; flex-shrink: 0;
+  }
+  .agent-divider {
+    display: flex; align-items: center; justify-content: center;
+    padding: 0 4px; color: var(--dim); font-size: 0.9rem;
+    opacity: 0.4; flex-shrink: 0;
+  }
+  .kb-tile {
+    background: rgba(42,157,143,0.06); border: 1px solid rgba(42,157,143,0.2);
+  }
+
+  /* scroll reveal */
+  .reveal { opacity: 0; transform: translateY(16px); transition: opacity 0.55s ease, transform 0.55s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* footer */
+  footer {
+    position: relative; z-index: 1;
+    border-top: 1px solid rgba(42,157,143,0.12);
+    background: #0e1012; padding: 40px 0;
+  }
+  .footer-inner {
+    max-width: 1000px; margin: 0 auto; padding: 0 36px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-left, .footer-right {
+    font-family: 'Courier Prime', monospace; font-size: 0.75rem;
+    letter-spacing: 1px; color: var(--dim); line-height: 1.8;
+  }
+  .footer-right { text-align: right; }
+  .footer-wordmark {
+    font-family: 'Rajdhani', sans-serif; font-weight: 700;
+    font-size: 0.9rem; letter-spacing: 2px; margin-bottom: 4px;
+  }
+  .sector-code {
+    font-family: 'VT323', monospace; font-size: 0.85rem;
+    color: var(--dim); opacity: 0.18; letter-spacing: 1px;
+    text-transform: uppercase; display: block; margin-top: 8px;
+  }
+
+  /* keyframes */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; } to { opacity: 1; }
+  }
+  @keyframes drop {
+    0%   { opacity: 0; transform: translateY(-8px); }
+    50%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(6px); }
+  }
+  @keyframes pulse-line {
+    0%, 100% { opacity: 0.4; }
+    50%       { opacity: 0.9; }
+  }
+
+  @media (max-width: 768px) {
+    .header-inner { padding: 14px 20px; }
+    .nav-links { gap: 16px; }
+    .nav-link { font-size: 0.7rem; }
+    .wrap, .panel-row { padding: 0 20px; }
+    .panel, .panel.wide { width: 92%; }
+    .panel-row.right { justify-content: flex-start; }
+    .footer-inner { flex-direction: column; gap: 20px; text-align: center; }
+    .footer-right { text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div id="pan-bg">
+  <img id="pan-img" src="./assets/backgrounds/hero_bg.png" alt="">
+</div>
+
+<header id="site-header">
+  <div class="header-inner">
+    <a href="./index.html" class="wordmark">
+      <span class="bracket">[</span><span class="skunk">Skunkworks</span><span class="bracket">]</span><span class="ti">TI</span>
+    </a>
+    <nav class="nav-links">
+      <a href="./index.html"   class="nav-link active">Home</a>
+      <a href="./recall.html"   class="nav-link">Project Recall</a>
+      <a href="./theseus.html"  class="nav-link">Project Theseus</a>
+      <a href="./about.html"    class="nav-link">About</a>
+      <a href="./contact.html"  class="nav-link">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="hero-wrapper">
+  <div class="wrap">
+    <div class="hero-eyebrow">Forward-Deployed AI Implementation</div>
+    <h1 class="hero-title">
+      The floor<br>
+      signals <span class="accent">up.</span><br>
+      <span class="gold">Not down.</span>
+    </h1>
+    <div class="hero-rule"></div>
+    <p class="hero-sub">
+      Most technology implementations fail at the last 10% — actual production.
+      <strong>We start there.</strong> Supervisors adopt. Results surface.
+      Management pulls the capability toward them.
+      That's not a workaround. That's the doctrine.
+    </p>
+    <div class="hero-cta">
+      <a href="./contact.html" class="btn-primary">Tell us what you're working on</a>
+      <div class="scroll-hint">
+        <div class="scroll-line"></div>
+        <span>What we solve</span>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-chevron">
+    <div class="chevron-line"></div>
+    <div class="chevron-dot"></div>
+  </div>
+</div>
+
+<hr class="grad-rule">
+
+<div class="page-body">
+
+  <div class="panel-row left reveal">
+    <div class="panel">
+      <div class="panel-label">The Problem</div>
+      <h2 class="panel-title">If any of this sounds<br>familiar, we should talk.</h2>
+      <div class="problem-stack">
+        <div class="problem-item">
+          <div class="problem-num">01</div>
+          <div class="problem-text">
+            <h4>Knowledge Walking Out</h4>
+            <p>Your most experienced people are retiring. What they know isn't in the SOP — it's judgment built over twenty years. When they leave, it leaves.</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-num">02</div>
+          <div class="problem-text">
+            <h4>Tools That Don't Fit the Floor</h4>
+            <p>Someone handed you a new platform and called it a solution. It works in a conference room. On the production floor, with your actual constraints, it doesn't land.</p>
+          </div>
+        </div>
+        <div class="problem-item">
+          <div class="problem-num">03</div>
+          <div class="problem-text">
+            <h4>No One to Call</h4>
+            <p>IT handles infrastructure. Training handles courses. Nobody owns the space between a new AI capability and the person who needs to use it on shift.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-row right reveal">
+    <div class="panel">
+      <div class="panel-label">How We Work</div>
+      <h2 class="panel-title">Forward-deployed.<br>Production-first.</h2>
+      <div class="flow-diagram">
+        <div class="flow-step active">
+          <div class="flow-node">01</div>
+          <div>
+            <div class="flow-label">Hear the problem</div>
+            <div class="flow-desc">We start with what you're actually dealing with — not what a needs assessment thinks you're dealing with.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">02</div>
+          <div>
+            <div class="flow-label">Build to fit</div>
+            <div class="flow-desc">Custom AI workflows scoped to your work center, your personnel, your documentation culture.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">03</div>
+          <div>
+            <div class="flow-label">Deploy and train</div>
+            <div class="flow-desc">Your people run it. We don't leave until they do.</div>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-node">04</div>
+          <div>
+            <div class="flow-label">Results surface up</div>
+            <div class="flow-desc">When it works on the floor, leadership finds out. That's the signal. That's how adoption spreads.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-row left reveal">
+    <div class="panel">
+      <div class="panel-label">The System</div>
+      <h2 class="panel-title">Built tools,<br>not promises.</h2>
+      <p style="font-size:0.88rem; color:var(--muted); line-height:1.65; margin-bottom:16px;">Every agent is operational on authorized infrastructure — built for a specific production-floor use case, not a demo.</p>
+      <div class="agent-grid">
+
+        <!-- Row 1: Project Recall — Bert → Faye → Joan -->
+        <div class="agent-row-wrap">
+          <div class="row-label">Project Recall</div>
+          <div class="agent-row">
+            <div class="agent-tile">
+              <div class="agent-func">Document Foundation</div>
+              <div class="agent-name">[Bert]</div>
+              <p class="agent-desc">Ingests SOPs, work instructions. Builds a machine-readable knowledge library.</p>
+              <span class="agent-status">Operational</span>
+            </div>
+            <div class="agent-connector">&#8594;</div>
+            <div class="agent-tile">
+              <div class="agent-func">Knowledge Capture</div>
+              <div class="agent-name">[Faye]</div>
+              <p class="agent-desc">Captures what experienced people know before they leave.</p>
+              <span class="agent-status">Operational</span>
+            </div>
+            <div class="agent-connector">&#8594;</div>
+            <div class="agent-tile">
+              <div class="agent-func">Knowledge Auditor</div>
+              <div class="agent-name">[Joan]</div>
+              <p class="agent-desc">Audits the library. Flags gaps and single points of failure.</p>
+              <span class="agent-status">Operational</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 2: Project Theseus — Theseus → Clew → Aletheia -->
+        <div class="agent-row-wrap">
+          <div class="row-label">Project Theseus <span class="challenge-badge">[Code 900 AI Challenge Finalist]</span></div>
+          <div class="agent-row">
+            <div class="agent-tile">
+              <div class="agent-func">QA Reconstruction</div>
+              <div class="agent-name">[Theseus]</div>
+              <p class="agent-desc">Reconstructs QA incidents before the investigation team assembles.</p>
+              <span class="agent-status">Operational</span>
+            </div>
+            <div class="agent-connector">&#8594;</div>
+            <div class="agent-tile">
+              <div class="agent-func">Aggregation</div>
+              <div class="agent-name">[Clew]</div>
+              <p class="agent-desc">Synthesizes outputs across the system into consolidated intelligence.</p>
+              <span class="agent-status">Operational</span>
+            </div>
+            <div class="agent-connector">&#8594;</div>
+            <div class="agent-tile">
+              <div class="agent-func">Org Q&amp;A</div>
+              <div class="agent-name">[Aletheia]</div>
+              <p class="agent-desc">Answers questions against the full organizational knowledge base.</p>
+              <span class="agent-status">Operational</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Row 3: Support layer — Lane | Paul | Knowledge Base -->
+        <div class="agent-row-wrap">
+          <div class="row-label">Support Layer</div>
+          <div class="agent-row">
+            <div class="agent-tile">
+              <div class="agent-func">Classification Gate</div>
+              <div class="agent-name">[Lane]</div>
+              <p class="agent-desc">Derivative classification review. Active on Bert, Faye, Theseus, Clew, and Aletheia.</p>
+              <span class="agent-status">Operational</span>
+            </div>
+            <div class="agent-divider">|</div>
+            <div class="agent-tile">
+              <div class="agent-func">Retrieval</div>
+              <div class="agent-name">[Paul]</div>
+              <p class="agent-desc">Surfaces relevant library entries into Faye's context at session start.</p>
+              <span class="agent-status">Operational</span>
+            </div>
+            <div class="agent-divider">|</div>
+            <div class="agent-tile kb-tile">
+              <div class="agent-func">Knowledge Base</div>
+              <div class="agent-name" style="color:var(--teal-lt);">[Repository]</div>
+              <p class="agent-desc">The cumulative, structured record of everything the system has captured and indexed.</p>
+              <span class="agent-status">Active</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="panel-row center reveal">
+    <div class="panel wide">
+      <div class="panel-label">Get in Touch</div>
+      <h2 class="panel-title">Tell us what you're working on.</h2>
+      <p style="font-size:1rem; color:var(--muted); line-height:1.65; margin-bottom:24px;">We don't need a formal request. We need to understand your problem. If it fits what we build, we'll set up a working session — not a briefing, not a demo. A conversation about the actual work.</p>
+      <a href="./contact.html" class="btn-primary">Open a Channel</a>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <div class="footer-wordmark">
+        <span style="color:#3dbfae">[</span><span style="color:#f4f5f4">Skunkworks</span><span style="color:#3dbfae">]</span><span style="color:#c9a84c">TI</span>
+      </div>
+      Campbell &middot; Colby &middot; 2026
+    </div>
+    <div class="footer-right">
+      skunkworks.ti@gmail.com
+      <span class="sector-code">SECTOR 01 | INSPECTION HOUSE | ENTRY POINT</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // header scroll
+  const header = document.getElementById('site-header');
+  window.addEventListener('scroll', () => {
+    header.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+
+  // horizontal pan
+  const panImg = document.getElementById('pan-img');
+  let maxOffset = 0;
+
+  function calcOffset() {
+    maxOffset = Math.max(0, panImg.offsetWidth - window.innerWidth);
+  }
+  function updatePan() {
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const progress  = maxScroll > 0 ? Math.min(Math.max(scrollTop / maxScroll, 0), 1) : 0;
+    panImg.style.transform = `translateY(-50%) translateX(${-(progress * maxOffset)}px)`;
+  }
+
+  window.addEventListener('load',   () => { calcOffset(); updatePan(); });
+  window.addEventListener('resize', () => { calcOffset(); updatePan(); });
+  window.addEventListener('scroll',   updatePan, { passive: true });
+  document.addEventListener('scroll', updatePan, { passive: true });
+  calcOffset();
+  updatePan();
+
+  // scroll reveal
+  const reveals = document.querySelectorAll('.reveal');
+  const ro = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); ro.unobserve(e.target); }
+    });
+  }, { threshold: 0.08 });
+  reveals.forEach(el => ro.observe(el));
+</script>
+</body>
+</html>

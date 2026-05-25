@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>[Skunkworks]TI — Project Recall</title>
+  <meta name="description" content="Project Recall — AI-assisted institutional knowledge preservation.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Source+Sans+3:wght@400;600&family=Courier+Prime:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:      #1e2022;
+      --surface: #2b2d2f;
+      --bg-deep: #0e1012;
+      --teal:    #2a9d8f;
+      --teal-lt: #3dbfae;
+      --gold:    #c9a84c;
+      --text:    #ffffff;
+      --muted:   #cbd5e1;
+      --dim:     #8a9096;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg-deep); color: var(--text);
+      font-family: 'Source Sans 3', sans-serif; font-weight: 400; min-height: 100vh;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none; z-index: 1000; opacity: 0.15;
+    }
+    .page-bg { position: fixed; inset: 0; z-index: 0; overflow: hidden; }
+    .page-bg img {
+      position: absolute; top: 0; left: 0;
+      height: 100%; width: auto; min-width: 100%;
+      object-fit: cover; object-position: left center;
+      will-change: transform; transition: transform 0.1s linear;
+    }
+    .page-bg::after { content: ''; position: absolute; inset: 0; background: rgba(14,16,18,0.52); }
+    .page-content { position: relative; z-index: 1; min-height: 100vh; }
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(14,16,18,0.92); backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(42,157,143,0.25);
+      padding: 0 40px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-wordmark {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 1.1rem; letter-spacing: 1px; text-decoration: none; display: flex;
+    }
+    .nav-wordmark .bracket { color: var(--teal-lt); }
+    .nav-wordmark .skunk   { color: var(--text); }
+    .nav-wordmark .ti      { color: var(--gold); }
+    .nav-links { display: flex; gap: 28px; align-items: center; }
+    .nav-link {
+      font-family: 'Courier Prime', monospace; font-size: 0.78rem;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: rgba(255,255,255,0.65); text-decoration: none; transition: color 0.2s;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--teal-lt); }
+    .panels { display: flex; flex-direction: column; gap: 80px; padding: 80px 40px; }
+    .panel {
+      background: rgba(43,45,47,0.93); border-left: 3px solid var(--teal);
+      padding: 40px 48px; max-width: 560px;
+    }
+    .panel.right  { margin-left: auto; }
+    .panel.center { margin: 0 auto; max-width: 720px; }
+    .panel-eyebrow {
+      font-family: 'Courier Prime', monospace; font-size: 0.72rem;
+      letter-spacing: 3px; text-transform: uppercase; color: var(--teal-lt); margin-bottom: 12px;
+    }
+    .panel h1, .panel h2 {
+      font-family: 'Rajdhani', sans-serif; font-weight: 700;
+      font-size: 2rem; line-height: 1.15; margin-bottom: 16px;
+    }
+    .panel p {
+      font-family: 'Source Sans 3', sans-serif; font-weight: 400;
+      font-size: 1rem; line-height: 1.65; color: var(--muted);
+    }
+    .panel-cta {
+      display: inline-block; margin-top: 24px;
+      font-family: 'Courier Prime', monospace; font-size: 0.8rem;
+      letter-spacing: 2px; text-transform: uppercase;
+      color: var(--teal-lt); text-decoration: none;
+      border: 1px solid var(--teal); padding: 10px 24px;
+      border-radius: 0; transition: background 0.2s, color 0.2s;
+    }
+    .panel-cta:hover { background: var(--teal); color: var(--bg-deep); }
+    .gradient-rule {
+      height: 3px; border-radius: 0;
+      background: linear-gradient(90deg,#2a9d8f 0%,#3dbfae 40%,#c9a84c 70%,#ddb85e 100%);
+    }
+    footer {
+      background: var(--bg-deep); border-top: 1px solid rgba(42,157,143,0.15);
+      padding: 32px 40px; text-align: center;
+    }
+    .footer-wordmark { font-family: 'Rajdhani', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 8px; }
+    .footer-wordmark .bracket { color: var(--teal-lt); }
+    .footer-wordmark .skunk   { color: var(--text); }
+    .footer-wordmark .ti      { color: var(--gold); }
+    .footer-meta { font-family: 'Source Sans 3', sans-serif; font-size: 0.8rem; color: var(--dim); margin-bottom: 12px; }
+    .sector-code {
+      font-family: 'VT323', monospace; font-size: 0.85rem; color: var(--dim);
+      opacity: 0.18; letter-spacing: 1px; text-transform: uppercase; display: block; margin-top: 4px;
+    }
+    @media (max-width: 768px) {
+      .nav { padding: 0 20px; }
+      .panels { padding: 40px 20px; gap: 40px; }
+      .panel, .panel.right, .panel.center { max-width: 92%; margin-left: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-bg">
+    <img id="bg-img" src="./assets/backgrounds/1779550317828.png" alt="">
+  </div>
+
+  <div class="page-content">
+
+    <nav class="nav">
+      <a href="./index.html" class="nav-wordmark">
+        <span class="bracket">[</span><span class="skunk">Skunkworks</span><span class="bracket">]</span><span class="ti">TI</span>
+      </a>
+      <div class="nav-links">
+        <a href="./index.html"   class="nav-link">Home</a>
+        <a href="./recall.html"   class="nav-link active">Project Recall</a>
+        <a href="./theseus.html"  class="nav-link">Project Theseus</a>
+        <a href="./about.html"    class="nav-link">About</a>
+        <a href="./contact.html"  class="nav-link">Contact</a>
+      </div>
+    </nav>
+
+    <div class="panels">
+
+      <div class="panel">
+        <div class="panel-eyebrow">Project Recall</div>
+        <h1>Institutional Memory, Preserved</h1>
+        <p>Experienced operators carry decades of undocumented knowledge — failure modes, workarounds, judgment calls that can't be found in any manual. Project Recall captures it before it's gone.</p>
+      </div>
+
+      <div class="panel right">
+        <div class="panel-eyebrow">Methodology</div>
+        <h2>The Capture Process</h2>
+        <p>AI-assisted interviews follow the operator's expertise — not a generic checklist. Each session produces a structured knowledge artifact: indexed, searchable, and ready for the next person who needs it.</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-eyebrow">Operational Results</div>
+        <h2>What Gets Preserved</h2>
+        <p>Fault diagnosis logic. Maintenance judgment. Historical context that explains why the current procedure exists. The institutional knowledge that makes the difference between a trained worker and an expert one.</p>
+      </div>
+
+      <div class="panel center" style="text-align:center;">
+        <div class="panel-eyebrow">Interested?</div>
+        <h2>Start a Recall Session</h2>
+        <p>Ready to preserve expertise at your location? Reach out and we'll walk you through what a Recall engagement looks like.</p>
+        <a href="./contact.html" class="panel-cta">Open a Channel</a>
+      </div>
+
+    </div>
+
+    <footer>
+      <div class="gradient-rule" style="margin-bottom:24px;"></div>
+      <div class="footer-wordmark">
+        <span class="bracket">[</span><span class="skunk">Skunkworks</span><span class="bracket">]</span><span class="ti">TI</span>
+      </div>
+      <div class="footer-meta">&copy; 2026 &mdash; skunkworks.ti@gmail.com</div>
+      <span class="sector-code">SECTOR 02 | FIELD OPERATIONS | ACTIVE</span>
+    </footer>
+
+  </div>
+
+  <script>
+    (function () {
+      var bgImg = document.getElementById('bg-img');
+      if (bgImg) {
+        var MAX_PAN = 0.3;
+        function updatePan() {
+          var scrolled = window.scrollY;
+          var maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+          var frac = maxScroll > 0 ? scrolled / maxScroll : 0;
+          var maxShift = Math.max(0, (bgImg.naturalWidth || bgImg.offsetWidth) - window.innerWidth) * MAX_PAN;
+          bgImg.style.transform = 'translateX(-' + (frac * maxShift) + 'px)';
+        }
+        window.addEventListener('scroll', updatePan, { passive: true });
+        window.addEventListener('resize', updatePan, { passive: true });
+        bgImg.addEventListener('load', updatePan);
+        updatePan();
+      }
+      var panels = document.querySelectorAll('.panel');
+      var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(e) {
+          if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; }
+        });
+      }, { threshold: 0.1 });
+      panels.forEach(function(p) {
+        p.style.opacity='0'; p.style.transform='translateY(20px)';
+        p.style.transition='opacity 0.5s ease, transform 0.5s ease';
+        observer.observe(p);
+      });
+    })();
+  </script>
+</body>
+</html>
